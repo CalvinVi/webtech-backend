@@ -1,8 +1,9 @@
-FROM gradle:jdk21-jammy AS build
-COPY --chown=gradle:gradle src /home/gradle/src
-WORKDIR /home/gradle/src
-RUN gradle build --no-daemon
+FROM gradle:8-jdk21 as builder
+WORKDIR /
+COPY . ./
+RUN gradle build
 
-FROM eclipse-temurin:21-jdk-jammy
-COPY --from=build /home/gradle/src/build/libs/webtech-backend-0.0.1-SNAPSHOT.jar app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+FROM openjdk:21-slim
+LABEL authors="Calvin Vi"
+COPY --from=builder build/libs .
+ENTRYPOINT ["java","-jar","/webtech-backend-0.0.1-SNAPSHOT.jar"]
